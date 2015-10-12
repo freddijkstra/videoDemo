@@ -10,9 +10,9 @@
 #import <Foundation/Foundation.h>
 
 
-
 @protocol SloMoVideoCaptureManagerDelegate <NSObject>
-- (void)didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL error:(NSError *)error;
+- (void) didStartRecordingAtSystemTime:(uint64_t)systemTime;
+- (void) didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL error:(NSError *)error;
 @end
 
 
@@ -21,9 +21,10 @@
 @property (nonatomic, assign) id<SloMoVideoCaptureManagerDelegate> delegate;
 @property (nonatomic, readonly) BOOL isRecording;
 
-@property (nonatomic) NSMutableArray *timestampsArray;
+@property (nonatomic) NSMutableArray *timestampsArray; // Array of NSNumbers.
+@property (nonatomic) Float64 startTime;
 
-
+// -- Public methods --
 - (id)  initWithPreviewView:(UIView *)previewView;
 - (void)setPreviewView:(UIView *)previewView;
 - (void)toggleContentsGravity;

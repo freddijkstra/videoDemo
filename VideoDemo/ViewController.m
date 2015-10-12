@@ -25,6 +25,9 @@ static const NSString *ItemStatusContext;
 {
     uint64_t _frameCnt;
     BOOL     _playing;
+    BOOL	 _scrubInFlight; // Indicates whether the UI is updating the scrubber.
+    float	 _lastScrubSliderValue;
+    float	 _playRateToRestore;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -190,10 +193,7 @@ static const NSString *ItemStatusContext;
     if ( _playing )
     {
         [self.player seekToTime:kCMTimeZero];
-        
         [self.player play];
-        
-
     }
     else
     {
@@ -223,17 +223,6 @@ static const NSString *ItemStatusContext;
                 
                 [self.playerItem addObserver:self forKeyPath:@"status"
                     options:NSKeyValueObservingOptionInitial context:&ItemStatusContext];
-
-                
-                
-                for (AVPlayerItemTrack *track in self.playerItem.tracks)
-                {
-                    if ([track.assetTrack.mediaType isEqual:AVMediaTypeAudio])
-                    {
-                        track.enabled = NO;
-                    }
-                }
-
                 
                 [[NSNotificationCenter defaultCenter]
                     addObserver:self
@@ -252,23 +241,121 @@ static const NSString *ItemStatusContext;
             
          });
      }];
+    
+    // -- Configure the frame stepper --
+    self.frameStepper.value = 0;
+    self.frameStepper.maximumValue = self.captureManager.timestampsArray.count-1;
+    
+    
+    self.displayTimer = [NSTimer scheduledTimerWithTimeInterval:0.01
+                                                    target:self
+                                                  selector:@selector(updateTimeout:)
+                                                  userInfo:nil
+                                                   repeats:YES];
 }
 
-- (IBAction)playSpeedSliderValueChanged:(id)sender
+// ----------------------------------------------------------------------------------------------------
+- (IBAction)frameStepperChanged:(id)sender
 {
-    UISlider *slider = sender;
+    UIStepper *stepper = sender;
     
-    if( self.playerItem.canPlaySlowForward)
-    {
-        [self.player setRate:slider.value/100];
-    }
-    else
-    {
-        NSLog(@"Cannot play slow forward");
-    }
+    NSNumber *dataTimestamp = [self.captureManager.timestampsArray objectAtIndex:(uint32_t)stepper.value];
     
+    [self.frameStepLabel setText:[NSString stringWithFormat:@"%d", (int)stepper.value]];
+    
+    NSLog(@"Time: %f", dataTimestamp.doubleValue);
+    
+    [self.player seekToTime:CMTimeMakeWithSeconds(dataTimestamp.doubleValue, NSEC_PER_SEC) toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
 }
 
+// ----------------------------------------------------------------------------------------------------
+
+- (IBAction)displayRateChanged:(id)sender
+{
+    UISegmentedControl *segmentControl = sender;
+    
+    switch (segmentControl.selectedSegmentIndex)
+    {
+        case 0:
+            [self.player setRate:1];
+            break;
+        case 1:
+            [self.player setRate:1/2.0];
+            break;
+        case 2:
+            [self.player setRate:1/10.0];
+            break;
+        case 3:
+            [self.player setRate:1/120.0];
+            break;
+        case 4:
+            [self.player setRate:0];
+            break;
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (IBAction)beginScrubbing:(id)sender
+{
+    _playRateToRestore = [self.player rate];
+    [self.player setRate:0.0];
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (IBAction)scrub:(id)sender
+{
+    _lastScrubSliderValue = [self.scrubSlider value];
+    
+    if ( !_scrubInFlight ) [self scrubToSliderValue:_lastScrubSliderValue];
+}
+
+- (void)scrubToSliderValue:(float)sliderValue
+{
+    double duration = CMTimeGetSeconds([self playerItemDuration]);
+    
+    if (isfinite(duration))
+    {
+        double time = duration*sliderValue/100.0f;
+        double tolerance = 1.0f * duration / 100.0f;
+        
+        _scrubInFlight = YES;
+        
+        [self.player seekToTime:CMTimeMakeWithSeconds(time, NSEC_PER_SEC)
+                toleranceBefore:CMTimeMakeWithSeconds(tolerance, NSEC_PER_SEC)
+                 toleranceAfter:CMTimeMakeWithSeconds(tolerance, NSEC_PER_SEC)
+              completionHandler:^(BOOL finished)
+              {
+                  _scrubInFlight = NO;
+              }];
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (CMTime)playerItemDuration
+{
+    AVPlayerItem *playerItem = [self.player currentItem];
+    CMTime itemDuration = kCMTimeInvalid;
+    
+    if (playerItem.status == AVPlayerItemStatusReadyToPlay) {
+        itemDuration = [playerItem duration];
+    }
+    
+    /* Will be kCMTimeInvalid if the item is not ready to play. */
+    return itemDuration;
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (IBAction)endScrubbing:(id)sender
+{
+    if ( _scrubInFlight ) [self scrubToSliderValue:_lastScrubSliderValue];
+    
+    [self.player setRate:_playRateToRestore];
+    _playRateToRestore = 0.f;
+}
 
 
 - (void)saveRecordedFile:(NSURL *)recordedFile
@@ -330,7 +417,99 @@ static const NSString *ItemStatusContext;
     [self saveRecordedFile:outputFileURL];
 }
 
+// ----------------------------------------------------------------------------------------------------
 
+- (void) didStartRecordingAtSystemTime:(uint64_t)systemTime
+{
+    
+}
+
+// ====================================================================================================
+
+- (void)updateTimeout:(NSTimer *)timer
+{
+    [self updateUI];
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (void) updateUI
+{
+    [self updateTimecode];
+    [self updateFrameNumber];
+    [self updateScrubber];
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (void) updateTimecode
+{
+    float t = CMTimeGetSeconds([self.player currentTime]);
+    
+    int minutes = (int)(t/60.0f);
+    int seconds = (int)(t-minutes*60);
+    int milliseconds = 1000*(t - (int)t);
+    
+    [self.timeCodeLabel setText:[NSString stringWithFormat:@"%d:%.2d.%.3d", minutes, seconds, milliseconds]];
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (void) updateFrameNumber
+{
+    float t = CMTimeGetSeconds([self.player currentTime]);
+    
+    NSNumber *timestamp = [self.captureManager.timestampsArray objectAtIndex:(uint32_t)self.frameStepper.value];
+    
+    if( t < timestamp.floatValue-0.004 || t > timestamp.floatValue+0.004 )
+    {
+        // Shift required.
+        
+        if( timestamp.floatValue < t && (uint32_t)self.frameStepper.value < self.captureManager.timestampsArray.count-1 )
+        {
+            // -- Seek forward --
+            
+            while (timestamp.floatValue < t && (uint32_t)self.frameStepper.value < self.captureManager.timestampsArray.count-2)
+            {
+                self.frameStepper.value = self.frameStepper.value+1;
+                
+                timestamp = [self.captureManager.timestampsArray objectAtIndex:(uint32_t)self.frameStepper.value];
+            }
+        }
+        else if( (uint32_t)self.frameStepper.value > 0 )
+        {
+            // -- Seek backward --
+            
+            while (timestamp.floatValue > t && (uint32_t)self.frameStepper.value > 1)
+            {
+                self.frameStepper.value = self.frameStepper.value-1;
+                timestamp = [self.captureManager.timestampsArray objectAtIndex:(uint32_t)self.frameStepper.value];
+            }
+        }
+        
+        [self.frameStepLabel setText:[NSString stringWithFormat:@"%d", (uint32_t)self.frameStepper.value]];
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+- (void) updateScrubber
+{
+    if( !_scrubInFlight )
+    {
+        double duration = CMTimeGetSeconds([self playerItemDuration]);
+        
+        if (isfinite(duration))
+        {
+            double time = CMTimeGetSeconds([self.player currentTime]);
+            [self.scrubSlider setValue:100.0f*(time / duration)];
+        }
+        else
+        {
+            [self.scrubSlider setValue:0.0];
+        }
+    }
+}
 
 // ====================================================================================================
 // ---- Notification handlers ----
@@ -341,7 +520,12 @@ static const NSString *ItemStatusContext;
 // ----------------------------------------------------------------------------------------------------
 - (void)playerItemDidReachEnd:(NSNotification *)notification
 {
-    [self.player seekToTime:kCMTimeZero];
+    dispatch_async(dispatch_get_main_queue(),
+    ^{
+        [self.player seekToTime:kCMTimeZero];
+//        self.frameStepper.value = 0;
+//        self.scrubSlider.value = 0;
+    });
 }
 
 // ----------------------------------------------------------------------------------------------------

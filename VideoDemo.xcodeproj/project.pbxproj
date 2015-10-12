@@ -13,7 +13,6 @@
 		B6237D7A1BB04DD2005937F6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6237D781BB04DD2005937F6 /* Main.storyboard */; };
 		B6237D7C1BB04DD2005937F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6237D7B1BB04DD2005937F6 /* Assets.xcassets */; };
 		B6237D7F1BB04DD2005937F6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B6237D7D1BB04DD2005937F6 /* LaunchScreen.storyboard */; };
-		B63AC67D1BBAA9710000B8CB /* 1280x720.png in Resources */ = {isa = PBXBuildFile; fileRef = B63AC67C1BBAA9710000B8CB /* 1280x720.png */; settings = {ASSET_TAGS = (); }; };
 		B63AC6831BC3AD780000B8CB /* PlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B63AC6821BC3AD780000B8CB /* PlayerView.m */; settings = {ASSET_TAGS = (); }; };
 		B63AC6881BC66EB00000B8CB /* SloMoVideoCaptureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B63AC6871BC66EB00000B8CB /* SloMoVideoCaptureManager.m */; settings = {ASSET_TAGS = (); }; };
 		B63AC6941BC7A2270000B8CB /* SVProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B63AC6911BC7A2270000B8CB /* SVProgressHUD.bundle */; settings = {ASSET_TAGS = (); }; };
@@ -31,7 +30,6 @@
 		B6237D7B1BB04DD2005937F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B6237D7E1BB04DD2005937F6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B6237D801BB04DD2005937F6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B63AC67C1BBAA9710000B8CB /* 1280x720.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = 1280x720.png; path = ../../Desktop/1280x720.png; sourceTree = "<group>"; };
 		B63AC6811BC3AD780000B8CB /* PlayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerView.h; sourceTree = "<group>"; };
 		B63AC6821BC3AD780000B8CB /* PlayerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerView.m; sourceTree = "<group>"; };
 		B63AC6861BC66EB00000B8CB /* SloMoVideoCaptureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SloMoVideoCaptureManager.h; path = VideoDemo/SloMoVideoCaptureManager/SloMoVideoCaptureManager.h; sourceTree = "<group>"; };
@@ -74,7 +72,6 @@
 		B6237D6E1BB04DD2005937F6 /* VideoDemo */ = {
 			isa = PBXGroup;
 			children = (
-				B63AC67C1BBAA9710000B8CB /* 1280x720.png */,
 				B63AC6811BC3AD780000B8CB /* PlayerView.h */,
 				B63AC6821BC3AD780000B8CB /* PlayerView.m */,
 				B6237D721BB04DD2005937F6 /* AppDelegate.h */,
@@ -181,7 +178,6 @@
 				B6237D7F1BB04DD2005937F6 /* LaunchScreen.storyboard in Resources */,
 				B6237D7C1BB04DD2005937F6 /* Assets.xcassets in Resources */,
 				B6237D7A1BB04DD2005937F6 /* Main.storyboard in Resources */,
-				B63AC67D1BBAA9710000B8CB /* 1280x720.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

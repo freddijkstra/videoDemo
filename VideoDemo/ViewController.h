@@ -28,17 +28,22 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult )
 @property (nonatomic) AVPlayer *player;
 @property (nonatomic) AVPlayerItem *playerItem;
 
+@property (nonatomic) NSTimer *displayTimer;
+
 
 // -- For use in the storyboards --
 
 // Recording
 @property (weak, nonatomic) IBOutlet UIButton *recordButton;
-@property (weak, nonatomic) IBOutlet UILabel  *frameCntLabel;
 @property (weak, nonatomic) IBOutlet UIView   *previewView;
 
 // Playback
 @property (weak, nonatomic) IBOutlet UIButton *playButton;
 @property (weak, nonatomic) IBOutlet PlayerView *playerView;
+@property (weak, nonatomic) IBOutlet UILabel *timeCodeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *frameStepLabel;
+@property (weak, nonatomic) IBOutlet UIStepper *frameStepper;
+@property (weak, nonatomic) IBOutlet UISlider *scrubSlider;
 
 // Session management.
 @property (nonatomic) dispatch_queue_t sessionQueue;
@@ -71,7 +76,12 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult )
 - (IBAction)toggleMovieRecording:(id)sender;
 - (IBAction)togglePlayPause:(id)sender;
 - (IBAction)loadFile:(id)sender;
-- (IBAction)playSpeedSliderValueChanged:(id)sender;
+- (IBAction)frameStepperChanged:(id)sender;
+- (IBAction)displayRateChanged:(id)sender;
+- (IBAction)scrub:(id)sender;
+- (IBAction)beginScrubbing:(id)sender;
+- (IBAction)endScrubbing:(id)sender;
+
 
 // ----------------------------------------------------------------------------------------------------
 // Notification handlers
@@ -83,16 +93,9 @@ typedef NS_ENUM( NSInteger, AVCamSetupResult )
 // ----------------------------------------------------------------------------------------------------
 
 - (void) configureFileURL;
-- (void) createSession;
-- (void) addInputDevice;
-- (void) setupVideoCapture;
 - (void) createPreviewLayer;
-- (void) createAssetWriter;
 - (void) authorizeVideoRecording;
-- (void) setupMovieFileOutput;
-- (void) configureCameraForHighestFrameRate:(AVCaptureDevice *)device;
 
-- (void) captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection;
 
 - (void) updatePlayButton;
 

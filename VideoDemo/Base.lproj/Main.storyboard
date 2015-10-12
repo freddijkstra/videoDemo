@@ -17,13 +17,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JVj-VH-LZe">
-                                <rect key="frame" x="676" y="278" width="49" height="30"/>
-                                <state key="normal" title="Record"/>
-                                <connections>
-                                    <action selector="toggleMovieRecording:" destination="BYZ-38-t0r" eventType="touchDown" id="TY6-A1-bbA"/>
-                                </connections>
-                            </button>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KqX-xa-Mdu">
                                 <rect key="frame" x="299" y="28" width="426" height="238"/>
                                 <color key="backgroundColor" red="0.50196081399917603" green="0.50196081399917603" blue="0.50196081399917603" alpha="1" colorSpace="calibratedRGB"/>
@@ -32,18 +25,6 @@
                                 <rect key="frame" x="299" y="367" width="426" height="238"/>
                                 <color key="backgroundColor" red="0.50196081400000003" green="0.50196081400000003" blue="0.50196081400000003" alpha="1" colorSpace="calibratedRGB"/>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Frame counter:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Xb-O3-CTp">
-                                <rect key="frame" x="299" y="282" width="117" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E03-Vu-U62">
-                                <rect key="frame" x="424" y="282" width="65" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7kb-a7-cjC">
                                 <rect key="frame" x="299" y="613" width="59" height="30"/>
                                 <state key="normal" title="Load file"/>
@@ -59,22 +40,79 @@
                                 </connections>
                             </button>
                             <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="100" minValue="0.0" maxValue="100" translatesAutoresizingMaskIntoConstraints="NO" id="jfA-DY-P3t">
-                                <rect key="frame" x="300" y="684" width="427" height="31"/>
+                                <rect key="frame" x="299" y="641" width="427" height="31"/>
                                 <connections>
-                                    <action selector="playSpeedSliderValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="KPR-ze-5dx"/>
+                                    <action selector="beginScrubbing:" destination="BYZ-38-t0r" eventType="touchDown" id="VXd-Qy-CLZ"/>
+                                    <action selector="endScrubbing:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="7aj-4k-Q85"/>
+                                    <action selector="endScrubbing:" destination="BYZ-38-t0r" eventType="touchCancel" id="YWh-rC-nf6"/>
+                                    <action selector="endScrubbing:" destination="BYZ-38-t0r" eventType="touchUpInside" id="u7c-vU-UIp"/>
+                                    <action selector="scrub:" destination="BYZ-38-t0r" eventType="valueChanged" id="7mS-Ge-myG"/>
                                 </connections>
                             </slider>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="mm:ss.mmm" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NJh-dF-xcE">
+                                <rect key="frame" x="501" y="333" width="224" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" maximumValue="2000" translatesAutoresizingMaskIntoConstraints="NO" id="P7z-eY-VYW">
+                                <rect key="frame" x="759" y="369" width="94" height="29"/>
+                                <connections>
+                                    <action selector="frameStepperChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="cln-Pm-TfB"/>
+                                </connections>
+                            </stepper>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ufE-vA-pMv">
+                                <rect key="frame" x="811" y="333" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Frame:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eNE-9M-2dq">
+                                <rect key="frame" x="759" y="333" width="53" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="lep-wG-VvR">
+                                <rect key="frame" x="457" y="690" width="224" height="29"/>
+                                <segments>
+                                    <segment title="1"/>
+                                    <segment title="1/2"/>
+                                    <segment title="1/10"/>
+                                    <segment title="1/120"/>
+                                    <segment title="pause"/>
+                                </segments>
+                                <connections>
+                                    <action selector="displayRateChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="mOu-jw-fOg"/>
+                                </connections>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Display rate:" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rbQ-n9-piX">
+                                <rect key="frame" x="325" y="693" width="124" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JVj-VH-LZe">
+                                <rect key="frame" x="646" y="263" width="79" height="30"/>
+                                <state key="normal" title="Record"/>
+                                <connections>
+                                    <action selector="toggleMovieRecording:" destination="BYZ-38-t0r" eventType="touchDown" id="TY6-A1-bbA"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
                     <connections>
-                        <outlet property="frameCntLabel" destination="E03-Vu-U62" id="tPU-ZY-eQU"/>
+                        <outlet property="frameStepLabel" destination="ufE-vA-pMv" id="YLI-rj-tgN"/>
+                        <outlet property="frameStepper" destination="P7z-eY-VYW" id="ptS-xC-ttJ"/>
                         <outlet property="playButton" destination="rOd-kj-cbB" id="8EX-Iy-6Ed"/>
                         <outlet property="playerView" destination="vRy-lw-SbX" id="NNv-t0-KgB"/>
                         <outlet property="previewView" destination="KqX-xa-Mdu" id="cyS-He-flV"/>
                         <outlet property="recordButton" destination="JVj-VH-LZe" id="5jh-3h-bFB"/>
+                        <outlet property="scrubSlider" destination="jfA-DY-P3t" id="ZvL-Si-HnL"/>
+                        <outlet property="timeCodeLabel" destination="NJh-dF-xcE" id="DG5-Dq-334"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

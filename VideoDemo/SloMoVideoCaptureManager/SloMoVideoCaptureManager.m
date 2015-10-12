@@ -37,6 +37,8 @@
 @property          BOOL                 isWaitingForInputReady;
 @property (strong) dispatch_semaphore_t writeSemaphore;
 
+
+
 @end
 
 
@@ -273,9 +275,15 @@
                 NSLog(@"AVAssetWriterInput video appendSapleBuffer error:%@", self.assetWriter.error);
             }
             
+            if( self.timestampsArray.count == 0 )
+            {
+                _startTime = (double)timestamp.value/(double)timestamp.timescale;
+            }
             
             // Save the  timestamp of the sample.
-            NSNumber *timestampObject = [[NSNumber alloc] initWithDouble:(double)timestamp.value/(double)timestamp.timescale];
+            NSNumber *timestampObject = [[NSNumber alloc] initWithDouble:((double)timestamp.value/(double)timestamp.timescale)-_startTime];
+            
+            
             [self.timestampsArray addObject:timestampObject];
         }
         else
@@ -381,6 +389,8 @@
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
+    
+    [self.timestampsArray removeAllObjects];
         
     dispatch_async(movieWritingQueue, ^{
         
@@ -415,7 +425,8 @@
 
 - (void)stopRecording
 {
-    dispatch_async(movieWritingQueue, ^{
+    dispatch_async(movieWritingQueue,
+    ^{
         
         _isRecording = NO;
         readyToRecordVideo = NO;
@@ -428,7 +439,8 @@
             self.assetWriterVideoInput = nil;
             self.assetWriter = nil;
             
-            dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_main_queue(),
+            ^{
                 
                 if ([self.delegate respondsToSelector:@selector(didFinishRecordingToOutputFileAtURL:error:)])
                 {
@@ -436,16 +448,6 @@
                 }
             });
         }];
-        
-        double currentTimestamp = ((NSNumber*)self.timestampsArray.firstObject).doubleValue;
-        for(NSNumber *timestamp in self.timestampsArray )
-        {
-            NSLog(@"Frame timestep: %lf, step: %lf", timestamp.doubleValue, timestamp.doubleValue - currentTimestamp );
-            currentTimestamp = timestamp.doubleValue;
-        }
-        
-        [self.timestampsArray removeAllObjects];
-        
     });
 }
 
@@ -505,6 +507,13 @@
         }
         CFRelease(sampleBuffer);
     });
+}
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+  didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection
+{
+    NSLog(@"Dropped sample");
 }
 
 // =============================================================================
